@@ -1,0 +1,9 @@
+from lib.naoqi import ALProxy
+
+mp = ALProxy('ALMotion', "192.168.1.163",9559)
+pNames = "Body"
+pStiffnessLists = 0.5
+pTimeLists = 1.0
+ 
+mp.stiffnessInterpolation(pNames, pStiffnessLists, pTimeLists)
+mp.setAngles(['RShoulderRoll'],[-3.14],1)
