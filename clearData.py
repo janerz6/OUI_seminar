@@ -2,7 +2,7 @@ from lib.naoqi import ALProxy
 from random import randint
 import sys
 
-if(len(sys.argv) <= 2):
+if(len(sys.argv) <= 1):
     print "Napacna uporaba skripte!\n uporaba: python learnFace.py <IP> <name>"
     sys.exit()
 
@@ -18,22 +18,11 @@ except Exception, e:
   print str(e)
   exit(1)
 
-# Create a proxy to ALMotion.
 try:
-    mp = ALProxy("ALMotion", IP, PORT)
-except Exception, e:
-    print "Could not create proxy to ALMotion"
-    print "Error was: ", e
-
-# Set stiffness on
-mp.stiffnessInterpolation("Body", 1, 0.5)
-
-# Stand up
-mp.moveInit()
-name = sys.argv[2]
-#randNum = randint(10000000,99999999)
-try:
-    faceProxy.learnFace(name)
-    print "Successfully learned " + str(name)
+    success = faceProxy.clearDatabase()
+    if success:
+        print "Successfully cleared DB"
+    else:
+        print "Error clearing db"
 except Exception, e:
     print ("Napaka:" + str(e))

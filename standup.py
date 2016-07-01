@@ -9,6 +9,7 @@ import time
 
 if(len(sys.argv) <= 1):
     print "Napacna uporaba skripte!\n uporaba: python standup.py <IP>"
+    sys.exit()
 
 IP = sys.argv[1]
 PORT = 9559
@@ -28,7 +29,7 @@ mp.moveInit()
 
 time.sleep(1)
 
-mp.setAngles(['HeadPitch'], [-0.35], 1)
+mp.setAngles(['HeadPitch'], [-0.0], 1)
 
 time.sleep(2)
 
@@ -69,13 +70,7 @@ length = 100
 buffer = [("None", 0)] * length
 personScoreDict = {}
 personTimeDict = {}
-janezScore = 0
-jureScore = 0
-simonScore = 0
 treshhold = 2
-simonTime = 0
-janezTime = 0
-jureTime = 0
 treshTime = 4
 #  1466703220.05
 
@@ -111,13 +106,16 @@ for i in range(0, 2000):
                 # Second Field = Extra info (empty for now).
                 faceExtraInfo = faceInfo[1]
                 name = str(faceExtraInfo[2])
-                print ("ID: " + str(faceExtraInfo[0]))
+                id = faceExtraInfo[0]
+
+                print ("ID: " + str(id))
                 print ("Natancnost: " + str(faceExtraInfo[1]))
                 print ("Ime: " + name)
-                #print personScoreDict
+                print personScoreDict
 
-                if personScoreDict.has_key(id):
-                    print "here"
+                if personScoreDict.has_key(id) and id >= 0:
+                    print "here ",
+                    print faceExtraInfo[1]
                     personScoreDict[id] += faceExtraInfo[1]
                 else:
                     personScoreDict[id] = faceExtraInfo[1]
@@ -126,15 +124,15 @@ for i in range(0, 2000):
 
                 # Make choice
                 tmp = buffer.pop()
-                tmp = (id, faceExtraInfo[1])
                 personScoreDict[id] -= tmp[1]
 
+                tmp = (id, faceExtraInfo[1])
                 buffer.insert(0, tmp)
 
                 tmpTime = time.time()
 
 
-                if (personScoreDict[id] > treshhold and abs(personTimeDict[id] - tmpTime) > treshTime):
+                if (id >= 0 and personScoreDict[id] > treshhold and abs(personTimeDict[id] - tmpTime) > treshTime):
                     tts.say("hello "+ str(name))
                     personTimeDict[id] = tmpTime
                     personScoreDict[id] = 0
