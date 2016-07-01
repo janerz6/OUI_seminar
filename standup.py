@@ -7,7 +7,10 @@ import time
 
 # from save_image import saveNaoImage
 
-IP = '192.168.15.108'
+if(len(sys.argv) <= 1):
+    print "Napacna uporaba skripte!\n uporaba: python standup.py <IP>"
+
+IP = sys.argv[1]
 PORT = 9559
 
 # Create a proxy to ALMotion.
@@ -29,7 +32,7 @@ mp.setAngles(['HeadPitch'], [-0.35], 1)
 
 time.sleep(2)
 
-tts = ALProxy("ALTextToSpeech", "192.168.15.108", 9559)
+tts = ALProxy("ALTextToSpeech", IP, 9559)
 # tts.say("i'll be back")
 
 time.sleep(2)
@@ -63,16 +66,18 @@ except Exception, e:
 
 # A simple loop that reads the memValue and checks whether faces are detected.
 length = 100
-buffer = [("None",0)] * length
-janezScore=0
-jureScore=0
-simonScore=0
+buffer = [("None", 0)] * length
+personScoreDict = {}
+personTimeDict = {}
+janezScore = 0
+jureScore = 0
+simonScore = 0
 treshhold = 2
 simonTime = 0
 janezTime = 0
 jureTime = 0
-treshTime=4
-        #  1466703220.05
+treshTime = 4
+#  1466703220.05
 
 for i in range(0, 2000):
     time.sleep(0.2)
@@ -81,6 +86,7 @@ for i in range(0, 2000):
     print ""
     print "*****"
     print ""
+    print i
 
     # Check whether we got a valid output.
     if (val and isinstance(val, list) and len(val) >= 2):
@@ -108,50 +114,30 @@ for i in range(0, 2000):
                 print ("ID: " + str(faceExtraInfo[0]))
                 print ("Natancnost: " + str(faceExtraInfo[1]))
                 print ("Ime: " + name)
+                #print personScoreDict
+
+                if personScoreDict.has_key(id):
+                    print "here"
+                    personScoreDict[id] += faceExtraInfo[1]
+                else:
+                    personScoreDict[id] = faceExtraInfo[1]
+                    print "zaznal"
+                    personTimeDict[id] = 0
 
                 # Make choice
                 tmp = buffer.pop()
-                if(str(tmp[0]).startswith("Simon")):
-                    simonScore -= tmp[1]
-                elif(str(tmp[0]).startswith("Janez")):
-                    janezScore -= tmp[1]
-                elif (str(tmp[0]).startswith("Jure")):
-                    jureScore -= tmp[1]
-
-                tmp = (name,faceExtraInfo[1])
-
-                if (str(tmp[0]).startswith("Simon")):
-                    simonScore += tmp[1]
-                elif (str(tmp[0]).startswith("Janez")):
-                    janezScore += tmp[1]
-                elif (str(tmp[0]).startswith("Jure")):
-                    jureScore += tmp[1]
+                tmp = (id, faceExtraInfo[1])
+                personScoreDict[id] -= tmp[1]
 
                 buffer.insert(0, tmp)
 
                 tmpTime = time.time()
-                print abs(janezTime-tmpTime)
-                if(simonScore > treshhold and abs(simonTime-tmpTime) > treshTime):
-                    tts.say("hello Simon")
-                    buffer = [("None", 0)] * length
-                    janezScore = 0
-                    jureScore = 0
-                    simonScore = 0
-                    simonTime=tmpTime
-                elif (janezScore > treshhold and abs(janezTime-tmpTime) > treshTime):
-                    tts.say("hello iaanez")
-                    buffer = [("None", 0)] * length
-                    janezScore = 0
-                    jureScore = 0
-                    simonScore = 0
-                    janezTime = tmpTime
-                elif (jureScore > treshhold and abs(jureTime-tmpTime) > treshTime):
-                    tts.say("hello Jure")
-                    buffer = [("None", 0)] * length
-                    janezScore = 0
-                    jureScore = 0
-                    simonScore = 0
-                    jureTime=tmpTime
+
+
+                if (personScoreDict[id] > treshhold and abs(personTimeDict[id] - tmpTime) > treshTime):
+                    tts.say("hello "+ str(name))
+                    personTimeDict[id] = tmpTime
+                    personScoreDict[id] = 0
 
 
         except Exception, e:

@@ -6,8 +6,10 @@ from lib.naoqi import ALProxy
 import time
 
 # from save_image import saveNaoImage
+if(len(sys.argv) <= 1):
+    print "Napacna uporaba skripte!\n uporaba: python sleep.py <IP>"
 
-IP = '192.168.15.108'
+IP = sys.argv[1]
 PORT = 9559
 
 # Create a proxy to ALMotion.
